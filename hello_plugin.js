@@ -18,7 +18,14 @@ export const agentMessage = async (args) => {
 			const encoder = new TextEncoder();
 
 			for (const chunk of text.split('')) {
-				const encodedChunk = encoder.encode(chunk);
+				const wrappedChunk = JSON.stringify({
+					choices: [{
+						delta: {
+							content: chunk
+						}
+					}]
+				});
+				const encodedChunk = encoder.encode(wrappedChunk);
 				controller.enqueue(encodedChunk);
 			}
 			controller.close();
