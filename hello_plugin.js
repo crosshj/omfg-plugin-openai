@@ -10,5 +10,25 @@ export const agentSettings = {
 export const agentMessage = async (args) => {
 	const { settings, messages = [], user, apiKey } = args;
 
-	return new Response("hello world from " + settings.plugin_name);
+	//return new Response("hello world from " + settings.plugin_name);
+
+	const stream = new ReadableStream({
+		start(controller) {
+			const text = 'hello world from ' + settings.plugin_name;
+			const encoder = new TextEncoder();
+
+			for (const chunk of text.split('')) {
+				const encodedChunk = encoder.encode(chunk);
+				controller.enqueue(encodedChunk);
+			}
+			controller.close();
+		},
+	});
+
+	return new Response(stream, {
+		headers: {
+			'Content-Type': 'text/plain',
+			'Transfer-Encoding': 'chunked',
+		},
+	});
 };
